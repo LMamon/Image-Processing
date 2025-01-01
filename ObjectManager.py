@@ -1,7 +1,6 @@
 '''Focuses on geometric analysis and computations, like finding contours, 
     moments, centroids, and axes of least/most moment.'''
 
-import os
 import cv2 as cv
 import ImageManager as Im
 

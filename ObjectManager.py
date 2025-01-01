@@ -1,3 +1,6 @@
+'''Focuses on geometric analysis and computations, like finding contours, 
+    moments, centroids, and axes of least/most moment.'''
+
 import os
 import cv2 as cv
 import ImageManager as Im
@@ -57,7 +60,7 @@ class ObjectManager:
                 bottomLeftOrigin=False)
         
         cv.imshow("Centroid of object", render)
-        print("Press 'Enter' to close image")
+        print("Click on Window And Press Any Key To Close Image")
         cv.waitKey(0)
         cv.destroyAllWindows()
 

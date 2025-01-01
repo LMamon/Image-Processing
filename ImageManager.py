@@ -1,18 +1,30 @@
+'''Handles all image-related operations, such as loading, preprocessing, 
+    and storing images.'''
+
 import os
+import numpy as np
 import tkinter as tk
 import cv2 as cv
 
 from tkinter import filedialog
 
-class ImageManager:
+class ImageManager:  #get user to select image> threshold> binary>store binary in results
     def __init__(self):
-        self.image = None
+        self.output = "results"
+        self.color_img = None
+        self.color_mtx = None
         self.file_path = None
-        self.binary_img = None
-        self.binary_path = None
-        self.convert()
 
-    def get_img(self):
+        self.gray_mtx = None
+        
+        self.binary_img = None
+        self.binary_mtx = None
+        self.binary_path = None
+        
+        os.makedirs(self.output, exist_ok=True)
+        
+
+    def get_img(self):#user gets color image and loaded to self.color_matrix
         root=tk.Tk()
         root.withdraw() #hide root window
         root.attributes("-topmost", True)
@@ -20,34 +32,102 @@ class ImageManager:
         #open file explorer
         types = [('JPEG', '*.png'),('JPEG','*.jpeg'), ('PDF','*.pdf'), ('TIFF', '*.tiff')]
         self.file_path = filedialog.askopenfilename(parent=root, title="Select an image", filetypes=types)
-        root.update()
-        #small window doesnt close for whatever reason
-
-        self.image = cv.imread(self.file_path, cv.IMREAD_GRAYSCALE) #reads and grayscales image
-        if self.image is None:
+        if self.file_path is None:
             print("No image loaded")
+        root.quit()
+        #small window doesnt close for whatever reason
         
-        
-    #method to convert to binary with objects/shapes white
-    def convert(self, output="results"): 
-        ImageManager.get_img(self) #get image and path
+        if self.color_mtx is None:
+            self.color_mtx = cv.imread(self.file_path) #sets self.color_img to image in file_path
+            self.save_color_mtx()
+            self.grayscale()
+            if self.color_mtx is None:
+                print("No color image")
+        root.destroy()
+    
 
-        _,self.binary_img = cv.threshold(self.image,230, 255, 0) #binary threshold
-
-        #invert image, shapes should be white
-        self.binary_img = cv.bitwise_not(self.binary_img)
-
-        #save binary image to results folder
-        os.makedirs(output, exist_ok=True)
-        self.binary_path = os.path.join(output,"binary.jpg")
-
+    def save_color_mtx(self): #save color image matrix to results folder
+        color_mtx_path = os.path.join(self.output, "color.npy")
+        np.save((color_mtx_path), self.color_mtx)
+        print(f'Color Matrix saved to: {color_mtx_path}')
+    
+    def load_color_mtx(self): #load color image matrix
         try:
-            cv.imwrite(self.binary_path,self.binary_img)
+            color_mtx_path = os.path.join(self.output, "color.npy")
+            self.color_mtx = np.load(color_mtx_path)
+        except FileNotFoundError:
+            print(f'Color matix not found at: {color_mtx_path}')
+
+
+    def save_binary_mtx(self): #save binary matrix to results folder
+        binary_mtx_path = os.path.join(self.output, "binary.npy")
+        if self.binary_mtx is None:
+            print("No binary matrix to save")
+            return
+        np.save((binary_mtx_path), self.binary_mtx)
+        print(f'Binary matrix saved to: {binary_mtx_path}')
+    
+    def load_binary_mtx(self): #load binary matrix
+        try:
+            binary_mtx_path = os.path.join(self.output, "binary.npy")
+            self.binary_mtx = np.load(binary_mtx_path)
+        except FileNotFoundError:
+            print(f'Binary matix not found at: {binary_mtx_path}')
+        
+
+    def grayscale(self): #set.gray_mtx with greyscaled color image
+        if self.color_mtx is None:
+            try:
+                self.load_color_mtx()
+                #self.color_img = cv.imread(self.file_path) #sets self.image to image in file_path
+            except Exception:
+                print("Loaded color matrix is empty")
+                return
+        self.gray_mtx = cv.cvtColor(self.color_mtx, cv.COLOR_BGR2GRAY)
+
+
+    def convert(self): #convert grayscale image to binary image and save
+        if self.gray_mtx is None:
+            self.grayscale()
+            if self.gray_mtx is None:
+                print("No grayscale image to apply threshold to")
+                return
+        
+        _,self.binary_mtx = cv.threshold(self.gray_mtx, 230,250, 0) #convert threshold to binary
+        if self.binary_mtx is None:
+            print("Error generating binary image")
+            return
+        
+        #create output path for binary_mtx
+        self.binary_path = os.path.join(self.output, "binary.jpg")
+        
+        #write bianry image to output folder
+        try:
+            cv.imwrite(self.binary_path, self.binary_mtx)
+            print(f'Binary image saved to: {self.binary_path}')            
         except Exception as e:
-            print(f"Error saving image: {self.binary_path}. Error {e}")
-            return None
-        return
-        
-        
-    def show(self):
-        cv.imshow("Binary image",self.binary_img)
+            print(f'Error saving image: {self.binary_path}. Error {e}')
+            return
+        self.save_binary_mtx()
+        self.show_binary()
+
+
+    def show_binary(self):
+        self.load_binary_mtx()
+        if self.binary_mtx is None:
+            print("No binary image to show")
+            return
+        cv.imshow("Binary image",self.binary_mtx)
+        print("Click on Window And Press Any Key To Close Image")
+        cv.waitKey(0)
+        cv.destroyAllWindows()
+
+    def show_color(self):
+        self.load_color_mtx()
+        if self.color_mtx is None:
+            print("No color image to show")
+            return
+        cv.imshow("Color image",self.color_mtx)
+        print("Click on Window And Press Any Key To Close Image")
+        cv.waitKey(0)
+        cv.destroyAllWindows()

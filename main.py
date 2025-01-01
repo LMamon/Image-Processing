@@ -1,3 +1,5 @@
+'''main menu provides navigation and options for user'''
+
 import sys
 import ImageManager as img
 import ObjectManager as obj
@@ -5,15 +7,17 @@ import ObjectManager as obj
     
 
 def main():#main menu prompt
-    im_mgr = img.ImageManager()
+    img_mgr = img.ImageManager()
     obj_mgr = obj.ObjectManager()
 
-    choice = input("\t\tWelcome!\n \n1) Convert image to binary \n2) Show centroid of object\
-                   \n3) Show least and max Axis\n0) Exit\n")
+    choice = input("\t\tWelcome!\n \n1) Choose image with object(s) \n2) Convert image to binary \
+                   \n3) Show centroid of object \n4) Show least and max moment Axis\n0) Exit\n")
     options = {
-        '1' : im_mgr.convert,
-        '2' : obj_mgr.show_centroid,
-        '3' : obj_mgr.show_axis,
+        '1' : img_mgr.get_img, #get user to select image
+        '2' : img_mgr.convert, #threshold> binary>store binary in results
+        '5' : img_mgr.show_color,
+        '3' : obj_mgr.show_centroid,
+        '4' : obj_mgr.show_axis,
         '0' : sys.exit
     }
     if choice == '0':

@@ -8,7 +8,7 @@ import cv2 as cv
 
 from tkinter import filedialog
 
-class ImageManager:  #get user to select image> threshold> binary>store binary in results
+class ImageManager: 
     def __init__(self):
         self.output = "results"
         self.color_img = None
@@ -43,7 +43,6 @@ class ImageManager:  #get user to select image> threshold> binary>store binary i
             self.grayscale()
             if self.color_mtx is None:
                 print("No color image")
-        root.destroy()
     
 
     def save_color_mtx(self): #save color image matrix to results folder
@@ -79,7 +78,6 @@ class ImageManager:  #get user to select image> threshold> binary>store binary i
         if self.color_mtx is None:
             try:
                 self.load_color_mtx()
-                #self.color_img = cv.imread(self.file_path) #sets self.image to image in file_path
             except Exception:
                 print("Loaded color matrix is empty")
                 return
@@ -94,6 +92,8 @@ class ImageManager:  #get user to select image> threshold> binary>store binary i
                 return
         
         _,self.binary_mtx = cv.threshold(self.gray_mtx, 230,250, 0) #convert threshold to binary
+        self.binary_mtx = cv.bitwise_not(self.binary_mtx) #invert image, shapes should be white
+
         if self.binary_mtx is None:
             print("Error generating binary image")
             return
@@ -110,24 +110,3 @@ class ImageManager:  #get user to select image> threshold> binary>store binary i
             return
         self.save_binary_mtx()
         self.show_binary()
-
-
-    def show_binary(self):
-        self.load_binary_mtx()
-        if self.binary_mtx is None:
-            print("No binary image to show")
-            return
-        cv.imshow("Binary image",self.binary_mtx)
-        print("Click on Window And Press Any Key To Close Image")
-        cv.waitKey(0)
-        cv.destroyAllWindows()
-
-    def show_color(self):
-        self.load_color_mtx()
-        if self.color_mtx is None:
-            print("No color image to show")
-            return
-        cv.imshow("Color image",self.color_mtx)
-        print("Click on Window And Press Any Key To Close Image")
-        cv.waitKey(0)
-        cv.destroyAllWindows()

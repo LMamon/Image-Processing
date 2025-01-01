@@ -3,19 +3,21 @@
 import sys
 import ImageManager as img
 import ObjectManager as obj
+import RenderManager as rnd
 
     
 
 def main():#main menu prompt
     img_mgr = img.ImageManager()
     obj_mgr = obj.ObjectManager()
+    rnd_mgr = rnd.RenderManager()
 
     choice = input("\t\tWelcome!\n \n1) Choose image with object(s) \n2) Convert image to binary \
-                   \n3) Show centroid of object \n4) Show least and max moment Axis\n0) Exit\n")
+                   \n3) Show centroid of object \n4) Show least and max moment Axis\n0) Exit\n>>")
     options = {
         '1' : img_mgr.get_img, #get user to select image
         '2' : img_mgr.convert, #threshold> binary>store binary in results
-        '5' : img_mgr.show_color,
+        #'5' : rnd_mgr.show_color,
         '3' : obj_mgr.show_centroid,
         '4' : obj_mgr.show_axis,
         '0' : sys.exit

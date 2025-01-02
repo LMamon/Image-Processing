@@ -9,8 +9,8 @@ import cv2 as cv
 from tkinter import filedialog
 
 class ImageManager: 
-    def __init__(self):
-        self.output = "results"
+    def __init__(self, output="results"):
+        self.output = output
         self.color_img = None
         self.color_mtx = None
         self.file_path = None
@@ -109,4 +109,4 @@ class ImageManager:
             print(f'Error saving image: {self.binary_path}. Error {e}')
             return
         self.save_binary_mtx()
-        self.show_binary()
+        

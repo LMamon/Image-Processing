@@ -2,18 +2,20 @@
 
 import numpy as np
 import cv2 as cv
-import ObjectManager
+
 
 class RenderManager:
-    def __init__(self, output="results"):
-        self.components = np.load(f'{output}/components.npy', allow_pickle=True) #load components from matrix
-        self.threshold_jpg = cv.imread(f'{output}/binary.jpg', cv.IMREAD_GRAYSCALE) #load thresholded image
+    def __init__(self, object_manager):
+        self.obj_manager = object_manager
+
+        self.components = np.load('results/components.npy', allow_pickle=True) #load components from matrix
+        self.threshold_jpg = cv.imread('results/binary.jpg', cv.IMREAD_GRAYSCALE) #load thresholded image
         if self.threshold_jpg is None:
             print("no .jpg found")
         
         #load color matrix
         try:
-            self.color_mtx = np.load(f'{output}/color.npy')
+            self.color_mtx = np.load('results/color.npy')
         except FileNotFoundError:
             print("no color.npy found")
             self.color_mtx = None
@@ -38,17 +40,18 @@ class RenderManager:
         cv.destroyAllWindows()
 
 
-    def show_centroid(self):        
+    def show_centroid(self):
+        components = np.load('results/components.npy', allow_pickle=True) #load components from matrix
         render = self.threshold_jpg.copy()
         
-        for component in self.components: #get centroids
+        for component in components: #get centroids
             centroid = component['centroid']
-            if len(centroid) != 2:
+            if centroid is None or len(centroid) != 2:
                 print("Invalid centroid data")
                 continue
 
             #draw centroids on image
-            x, y = int(centroid[0]), int(centroid[1])
+            x, y = centroid
             cv.circle(render, (x, y), 3, color=(0, 0, 255), thickness=1)
             cv.putText(render, 
                     f"Centroid: ({x}, {y})", 
@@ -56,14 +59,12 @@ class RenderManager:
                     cv.FONT_HERSHEY_PLAIN, 
                     .3,
                     (0,0,255),
-                    1,
-                    bottomLeftOrigin=False)
+                    1)
         
-        print("loaded components", self.components)
+        valid_objects = [c for c in components if c['centroid'] is not None]
+        print(f"Objects detected: {len(valid_objects)}")
+        
         cv.imshow("Centroids", render)
         cv.waitKey(0)
         cv.destroyAllWindows()
     
-generator = ObjectManager
-generator.self.gen_components()
-

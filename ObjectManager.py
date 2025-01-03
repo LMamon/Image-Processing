@@ -5,12 +5,12 @@ import os
 import _heapq
 import numpy as np
 import cv2 as cv
-import ImageManager as Im
+
 
 class ObjectManager:
-    def __init__(self, binary_mtx=np.load('binary.npy'), output='results'):
-        self.binary_mtx = binary_mtx
-        self.output = output
+    def __init__(self):
+        self.binary_mtx = np.load('results/binary.npy')
+        self.output = 'results'
         #find of contours of binary matrix
         self.contours, _ = cv.findContours(self.binary_mtx, 
                                                 cv.RETR_LIST,
@@ -20,7 +20,7 @@ class ObjectManager:
             return 
         
         self.component_heap = []
-        os.makedirs(self.output, exist_ok=True)
+        os.makedirs({self.output}, exist_ok=True)
 
     def get_area(self, contour): #calculate area from contours
         return cv.contourArea(contour)
@@ -72,7 +72,7 @@ class ObjectManager:
             
 
     def save_to_text(self): #save data to .txt file
-        text_path = os.path.join(self.output, 'properties.txt')
+        text_path = os.path.join({self.output}, 'properties.txt')
         #write text to file
         with open(text_path, 'w') as f:
             for data in self.component_heap:
@@ -80,7 +80,7 @@ class ObjectManager:
         print(f'Objects detected printed to: {text_path}')
     
     def save_to_npy(self): #save data to .npy for visualization
-        npy_path =os.path.join(self.output, "components.npy")
+        npy_path =os.path.join({self.output}, "components.npy")
         component_data = []
         for data in self.component_heap:
             components = {'label': data[5],
@@ -97,5 +97,5 @@ class ObjectManager:
         print(f'Componnets saved to: {npy_path}')
 
 
-analysis = ObjectManager()
-analysis.gen_components()
+analyzer = ObjectManager
+analyzer.gen_components()

@@ -1,5 +1,7 @@
-__pycache__/ImageManager.cpython-312.pyc
-__pycache__/ObjectManager.cpython-312.pyc
-results/binary.jpg
-results/binary.npy
-results/color.npy
+__pycache__/*
+!__pycache__/.gitkeep
+results/*
+
+
+
+

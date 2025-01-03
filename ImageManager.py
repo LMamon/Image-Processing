@@ -20,11 +20,14 @@ class ImageManager:
         os.makedirs(self.output, exist_ok=True)
         
     def convert_to_gray(self): #convert color mtx to grayscale
-        self.gray_mtx = cv.cvtColor(self.color_mtx, cv.IMREAD_GRAYSCALE)
+        self.gray_mtx = cv.cvtColor(self.color_mtx, cv.COLOR_BGR2GRAY)
 
     def convert_to_binary(self): #convert grayscale to binary using thresholding and invert so objects are white
-        _, gray = cv.threshold(self.gray_mtx, 190, 250, 0)
+        _, gray = cv.threshold(self.gray_mtx, 190, 250, cv.THRESH_BINARY)
         self.binary_mtx = cv.bitwise_not(gray)
+
+
+        self.binary_mtx = (self.binary_mtx > 128).astype(np.uint8) * 255
         if self.binary_mtx is None:
             print("Error converting grayscale image")
     
@@ -32,16 +35,16 @@ class ImageManager:
         color_path = os.path.join(self.output, "color.npy")
         np.save(color_path, self.color_mtx)
     
-    def save_binary_mtx(self):
+    def save_binary(self):
         binary_path = os.path.join(self.output, "binary.npy")
         np.save(binary_path, self.binary_mtx)
-
-    def save_binary_jpg(self): #uses cv to save jpg not np since its no a matrix
+        
         jpg_path = os.path.join(self.output, "binary.jpg")
         cv.imwrite(jpg_path, self.binary_mtx)
         if self.binary_mtx is None:
             print("Binary image not saved")
             return
+        
         
     def load_color_mtx(self):
         try:
@@ -70,5 +73,4 @@ class ImageManager:
         self.save_color_mtx()
         self.convert_to_gray()
         self.convert_to_binary()
-        self.save_binary_mtx()
-        self.save_binary_jpg()
+        self.save_binary()

@@ -14,7 +14,7 @@ This project is an inttroduction to binary image computer vision. It demonstrate
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone <https://github.com/LMamon/Binary-Image-Analysis.git>
    cd <repository-folder>
 
 ## Future improvements

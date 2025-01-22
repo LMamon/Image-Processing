@@ -23,11 +23,7 @@ class ImageManager:
         self.gray_mtx = cv.cvtColor(self.color_mtx, cv.COLOR_BGR2GRAY)
 
     def convert_to_binary(self): #convert grayscale to binary using thresholding and invert so objects are white
-        _, gray = cv.threshold(self.gray_mtx, 190, 250, cv.THRESH_BINARY)
-        self.binary_mtx = cv.bitwise_not(gray)
-
-
-        self.binary_mtx = (self.binary_mtx > 128).astype(np.uint8) * 255
+        _, self.binary_mtx = cv.threshold(self.gray_mtx, 190, 250, cv.THRESH_BINARY_INV)
         if self.binary_mtx is None:
             print("Error converting grayscale image")
     
@@ -36,22 +32,17 @@ class ImageManager:
         np.save(color_path, self.color_mtx)
     
     def save_binary(self):
+        if self.binary_mtx is None:
+            print("Binary image not saved")
+            return
         binary_path = os.path.join(self.output, "binary.npy")
         np.save(binary_path, self.binary_mtx)
         
         jpg_path = os.path.join(self.output, "binary.jpg")
         cv.imwrite(jpg_path, self.binary_mtx)
-        if self.binary_mtx is None:
-            print("Binary image not saved")
-            return
-        
-        
-    def load_color_mtx(self):
-        try:
-            color_path = os.path.join(self.output, "color.npy")
-            return np.load(color_path)
-        except FileNotFoundError:
-            print("No color matrix found")
+
+        print(f"Saved binary image to: {jpg_path}")
+        print(f"Saved binary array to: {binary_path}")
     
     def get_image(self): #user picks image to use
         root= tk.Tk()

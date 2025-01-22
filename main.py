@@ -17,7 +17,7 @@ def main():#main menu prompt
         print("1) Choose image with object(s)")
         print("2) Show binary")
         print("3) Show color")
-        print("4) Show centroid of ojects")
+        print("4) Show centroid of objects")
         print('5) Show least and max moments')
         print("0) Exit")
 
@@ -49,19 +49,7 @@ def main():#main menu prompt
                 print("please load an image first (option 1)")
             else:
                 obj_mgr.gen_components()
-                rnd_mgr #place holder
-        elif choice == '6':
-            if rnd_mgr is None:
-                print("please load an image first (option 1)")
-            else:
-                obj_mgr.gen_components()
-                rnd_mgr #place holder
-        elif choice == '7':
-            if rnd_mgr is None:
-                print("please load an image first (option 1)")
-            else:
-                obj_mgr.gen_components()
-                rnd_mgr #place holder
+                rnd_mgr.show_axis()
 
         elif choice == '0':
             print("\n\tGoodbye")

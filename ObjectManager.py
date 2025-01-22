@@ -8,20 +8,33 @@ import cv2 as cv
 
 
 class ObjectManager:
-    def __init__(self):
-        self.binary_mtx = np.load('results/binary.npy')
+    def __init__(self, binary_file='results/binary.npy', output='results'):
+        self.output = output
+        self.binary_file = binary_file
 
-        self.output = 'results'
+        if not os.path.exists(self.binary_file):
+            print(f"No such file: {self.binary_file}")
+            self.binary_mtx = None
+            return
+        
+        self.binary_mtx = np.load(self.binary_file)
+        if self.binary_mtx is None:
+            print(f"Failed to load binary matrix from {self.binary_file}")
+            return
+        
+        os.makedirs(self.output, exist_ok=True)
         #find of contours of binary matrix
-        self.contours, _ = cv.findContours(self.binary_mtx, 
-                                                cv.RETR_LIST,
+        self.contours, _ = cv.findContours(self.binary_mtx.copy(), 
+                                                cv.RETR_EXTERNAL,
                                                 cv.CHAIN_APPROX_NONE)
         if not self.contours:
-            print("Binary matrix not detected")
+            print("no contours found")
+            self.contours = []
             return 
         
         self.component_heap = []
-        os.makedirs(self.output, exist_ok=True)
+        
+        self.gen_components()
 
     def get_area(self, contour): #calculate area from contours
         return cv.contourArea(contour)
@@ -32,70 +45,115 @@ class ObjectManager:
     def get_centroid(self, contour):
         M = cv.moments(contour)
         #use moments (M) to calculate centroid (C)
-        if M["m00"] != 0: #to avoid division by 0
-            cx = int(M['m10']/M['m00'])
-            cy = int(M['m01']/M['m00'])
-            return (cx, cy)
+        if M["m00"] == 0:  # Handle division by zero gracefully
+            print("Invalid contour with zero area.")
+            return None
+        cx = int(M['m10'] / M['m00'])
+        cy = int(M['m01'] / M['m00'])
+        return (cx, cy)
     
     def get_axis(self, contour):
         M = cv.moments(contour)
+        if M["m00"] == 0:
+            return None
         
-        if M["m00"] != 0: #to avoid division by 0
-            cx = int(M['m10']/M['m00'])
-            cy = int(M['m01']/M['m00'])
-            #get central moments
-            mu20 = M['m20'] - cx * M['m10']
-            mu02 = M['m02'] - cy * M['m01']
-            mu11 = M['m11'] - cx * M['m01'] - cy * M['m10']
+        #pull mean‐centered moments
+        mu20 = M["mu20"]
+        mu02 = M["mu02"]
+        mu11 = M["mu11"]
 
-            #calculate angle of major axis
-            angle = 0.5 * np.arctan2(2 * mu11, mu20 - mu02)
+        #divide by m00 to get normalized second moments
+        cov = np.array([
+            [mu20, mu11],
+            [mu11, mu02]
+        ]) / M["m00"]
         
-            #alculate length of the major and minor axes
-            area = M['m00']
-            major_axis_len = np.sqrt((2 * (mu20 + mu02 + np.sqrt((mu20 - mu02)**2 + 4 * mu11**2))) / area)
-            minor_axis_len = np.sqrt((2 * (mu20 + mu02 - np.sqrt((mu20 - mu02)**2 + 4 * mu11**2))) / area)
+        #eigen‐decomposition
+        vals, vecs = np.linalg.eig(cov)
+        #sort
+        idx = np.argsort(vals)[::-1]
+        vals = vals[idx]
+        vecs = vecs[:, idx]
 
-            return major_axis_len, minor_axis_len, angle
+        if vals[0] <= 0 or vals[1] <= 0:
+            return None
+
+        angle = np.arctan2(vecs[1, 0], vecs[0, 0])
+        
+        major_len = 2.0 * np.sqrt(2.0 * vals[0])
+        minor_len = 2.0 * np.sqrt(2.0 * vals[1])
+        
+        return (major_len, minor_len, angle)
 
     def save_to_text(self): #save data to .txt file
         text_path = os.path.join(self.output, 'properties.txt')
         #write text to file
         with open(text_path, 'w') as f:
             for data in self.component_heap:
-                f.write(f'{data[5]}: Area: {-data[0]} px, Centroid: {data[1]}, Angle: {data[6]}\n')
+                area = -data[0]
+                centroid = data[1]
+                major_len = data[3]
+                minor_len = data[4]
+                label = data[5]
+                angle = data[6]
+
+                f.write(
+                    f"Object {label}: "
+                    f"Area={area:.2f} px, "
+                    f"Centroid={centroid}, "
+                    f"MajorAxis={major_len:.2f}, "
+                    f"MinorAxis={minor_len:.2f}, "
+                    f"Angle={angle:.2f}\n"
+                )
         print(f'\nObjects detected printed to: {text_path}')
     
     def save_to_npy(self): #save data to .npy for visualization
         npy_path =os.path.join(self.output, "components.npy")
         component_data = []
         for data in self.component_heap:
-            components = {'label': data[5],
-                          'area': -data[0],
-                          'centroid' : data[1],
-                          'moments' : data[2],
-                          'major_axis' : data[3],
-                          'minor_axis' : data[4],
-                          'angle' : data[6]}
+            area = -data[0]
+            centroid = data[1]
+            moments = data[2]
+            major_len = data[3]
+            minor_len = data[4]
+            label = data[5]
+            angle = data[6]
+
+            components = {
+                'label': label,
+                'area': area,
+                'centroid': centroid,
+                'moments': moments,
+                'major_axis': major_len,
+                'minor_axis': minor_len,
+                'angle': angle
+                }
             
             component_data.append(components)
 
-        np.save(npy_path, component_data)
-        print(f'\nComponnets saved to: {npy_path}')
+        np.save(npy_path, component_data, allow_pickle=True)
+        print(f'\nComponents saved to: {npy_path}')
 
 
     def gen_components(self): #get relevant information from detected objects
+        print(f"Number of contours found: {len(self.contours)}")
         for label, contour in enumerate(self.contours, start=1):
             A = self.get_area(contour)
-            M = self.get_moments(contour)
-
-            if M["m00"] == 0:
+            if A == 0:
                 continue
-            centroid = self.get_centroid(contour)
-            major_axis_len, minor_axis_len, angle = self.get_axis(contour)
 
+            M = self.get_moments(contour)
+            centroid = self.get_centroid(contour)
+            if centroid is None:
+                continue
+            
+            axes  = self.get_axis(contour)
+            if axes is None:
+                continue #skipped if axis is none
+                
+            major_axis_len, minor_axis_len, angle = axes
             #insert data into heap
             _heapq.heappush(self.component_heap,(-A, centroid, M, major_axis_len, minor_axis_len, label, angle)) 
 
-        self.save_to_text()
         self.save_to_npy()
+        self.save_to_text()

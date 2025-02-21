@@ -11,9 +11,8 @@ This project is an inttroduction to image processing and computer vision. It dem
   - Orientation
 - Visualizes results on a processed image.
 - Image Processing (currently under construction) : 
-  - LSIS+ convolution
-  - linear and non-linear image filters
-  - converting to fourier transforms
+  - Linear and non-linear image filters
+  - Fourier transforms
 
 ## Installation
 1. Clone the repository:

@@ -9,7 +9,7 @@ import cv2 as cv
 from tkinter import filedialog
 
 class ImageManager: 
-    def __init__(self, output="results"):
+    def __init__(self, output="object-results"):
         self.output = output
         self.file_path = None
 

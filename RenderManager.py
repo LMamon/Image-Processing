@@ -67,7 +67,7 @@ class RenderManager:
                     lineType= 1)
         
         valid_objects = [c for c in components if c['centroid'] is not None]
-        print(f"Objects detected: {len(valid_objects)}")
+        print(f"Objects detected: {len(valid_objects)/3}")
         
         cv.imshow("Centroids", render)
         cv.waitKey(0)

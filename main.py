@@ -4,7 +4,7 @@ import sys
 import ImageManager
 import RenderManager as rnd
 import ObjectManager as obj
-    
+import ProcessingManager as prc    
 
 def main():#main menu prompt
     print("\n\t\tWelcome!\n")
@@ -12,6 +12,7 @@ def main():#main menu prompt
     img_mgr = ImageManager.ImageManager() #instanace of image manager
     obj_mgr = None
     rnd_mgr = None
+    prc_mgr = None
 
     while True: 
         print("1) Choose image with object(s)")
@@ -19,6 +20,11 @@ def main():#main menu prompt
         print("3) Show color")
         print("4) Show centroid of objects")
         print('5) Show least and max moments')
+        print('6) Show Gaussian blur')
+        print('7) Show Median blur')
+        print('8) Show Sharpened')
+        print('9) Show FT')
+
         print("0) Exit")
 
         choice = input(">>")
@@ -26,7 +32,9 @@ def main():#main menu prompt
         if choice == '1':
             img_mgr.get_image()
             obj_mgr = obj.ObjectManager()
-            rnd_mgr = rnd.RenderManager(obj_mgr)    
+            prc_mgr = prc.ProcessingManager()
+            rnd_mgr = rnd.RenderManager(obj_mgr)
+
         
         elif choice == '2':
             if rnd_mgr is None:
@@ -50,7 +58,30 @@ def main():#main menu prompt
             else:
                 obj_mgr.gen_components()
                 rnd_mgr.show_axis()
-
+        elif choice == '6':
+            if rnd_mgr is None:
+                print("please load an image first (option 1)")
+            else:
+                prc_mgr.gaussian(5)
+                rnd_mgr.show_gaussian()
+        elif choice == '7':
+            if rnd_mgr is None:
+                print("please load an image first (option 1)")
+            else:
+                prc_mgr.median()
+                rnd_mgr.show_median()
+        elif choice == '8':
+            if rnd_mgr is None:
+                print("please load an image first (option 1)")
+            else:
+                prc_mgr.sharpen()
+                rnd_mgr.show_sharpened()
+        elif choice == '9':
+            if rnd_mgr is None:
+                print("please load an image first (option 1)")
+            else:
+                prc_mgr.opencvFT()
+                rnd_mgr.showFT()
         elif choice == '0':
             print("\n\tGoodbye")
             sys.exit()

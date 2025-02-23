@@ -1,6 +1,8 @@
 __pycache__/*
 !__pycache__/.gitkeep
-results/*
+object-results/*
+processing-results/*
+.venv/*
 
 
 

@@ -12,7 +12,7 @@ This project is an inttroduction to image processing and computer vision. It dem
 - Image Processing: 
   - Linear and non-linear image filters
   - Fourier transformation
-- Features (comiong soon):
+- Features (coming soon):
   - Edge detection
   - Boundary detection
   - Image stitching

@@ -9,14 +9,14 @@ class RenderManager:
     def __init__(self, object_manager):
         self.obj_manager = object_manager
 
-        self.components = np.load('results/components.npy', allow_pickle=True) #load components from matrix
-        self.threshold_jpg = cv.imread('results/binary.jpg', cv.IMREAD_GRAYSCALE) #load thresholded image
+        self.components = np.load('object-results/components.npy', allow_pickle=True) #load components from matrix
+        self.threshold_jpg = cv.imread('object-results/binary.jpg', cv.IMREAD_GRAYSCALE) #load thresholded image
         if self.threshold_jpg is None:
             print("no .jpg found")
         
         #load color matrix
         try:
-            self.color_mtx = np.load('results/color.npy')
+            self.color_mtx = np.load('object-results/color.npy')
         except FileNotFoundError:
             print("no color.npy found")
             self.color_mtx = None
@@ -42,7 +42,7 @@ class RenderManager:
 
 
     def show_centroid(self):
-        components = np.load('results/components.npy', allow_pickle=True) #load components from matrix
+        components = np.load('object-results/components.npy', allow_pickle=True) #load components from matrix
         render = cv.cvtColor(self.threshold_jpg, cv.COLOR_GRAY2BGR)
         
         for component in components: #get centroids
@@ -75,7 +75,7 @@ class RenderManager:
     
     def show_axis(self):
         #load components from matrix
-        components = np.load('results/components.npy', allow_pickle=True)
+        components = np.load('object-results/components.npy', allow_pickle=True)
         render = cv.cvtColor(self.threshold_jpg, cv.COLOR_GRAY2BGR)
 
         for component in components:
@@ -111,3 +111,32 @@ class RenderManager:
         cv.waitKey(0)
         cv.destroyAllWindows()
         
+    def show_gaussian(self): #render gaussian blurred img
+        g_blur = np.load('processing-results/gaussian.npy', allow_pickle=True)
+
+        cv.imshow("Gaussian blur", g_blur)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
+
+    def show_median(self):
+        m_blur = np.load('processing-results/median.npy', allow_pickle=True)
+        cv.imshow("Median blur", m_blur)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
+
+    def show_sharpened(self):
+        sharp = np.load('processing-results/sharpened.npy', allow_pickle=True)
+        cv.imshow('Sharpened', sharp)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
+    
+    def showFT(self):
+        ft = np.load('processing-results/magnitude.npy', allow_pickle=True)
+        
+        ft = cv.normalize(ft, None, 0, 255, cv.NORM_MINMAX)
+        ft = ft.astype(np.uint8)
+        ft = cv.applyColorMap(ft, cv.COLORMAP_TWILIGHT)
+
+        cv.imshow('Fourier Transform', ft)
+        cv.waitKey(0)
+        cv.destroyAllWindows()

@@ -1,0 +1,1 @@
+''' Handles Edge detection, Boundary detection, Image stitching, Face Detection. COMING SOON'''

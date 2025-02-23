@@ -1,6 +1,6 @@
-# Binary images analysis
+# Image Processing
 
-This project is an inttroduction to image processing and computer vision. It demonstrates how to analyze geometric properties of objects/shapes in binary images, LSIS+ convolution, linear and non-linear image filters, and converting to fourier transforms using the openCV library.
+This project is an inttroduction to image processing and computer vision. It demonstrates how to analyze geometric properties of objects/shapes in binary images. Includes more image processing operations for color images including: linear and non-linear image filters, and converting to fourier transforms using the openCV library.
 
 ## Features
 - Converts color images to binary.
@@ -9,10 +9,16 @@ This project is an inttroduction to image processing and computer vision. It dem
   - Major and minor axes
   - Moments
   - Orientation
-- Visualizes results on a processed image.
-- Image Processing (currently under construction) : 
+- Image Processing: 
   - Linear and non-linear image filters
-  - Fourier transforms
+  - Fourier transformation
+- Features (comiong soon):
+  - Edge detection
+  - Boundary detection
+  - Image stitching
+  - Face Detection 
+
+- Visualizes results of a processed image.
 
 ## Installation
 1. Clone the repository:

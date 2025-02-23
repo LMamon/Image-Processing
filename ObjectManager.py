@@ -8,7 +8,7 @@ import cv2 as cv
 
 
 class ObjectManager:
-    def __init__(self, binary_file='results/binary.npy', output='results'):
+    def __init__(self, binary_file='object-results/binary.npy', output='object-results'):
         self.output = output
         self.binary_file = binary_file
 
